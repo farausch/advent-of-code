@@ -38,23 +38,21 @@ where
 }
 
 fn main() {
+    // Section A
     let file_path = "input.txt";
 
     let (a1, a2) = read_file_to_arrays(file_path).unwrap();
-
     let a1_sorted = sort(a1);
     let a2_sorted = sort(a2);
-
     let mut pos_dist_sum: i32 = 0;
 
     for n in 0..a1_sorted.len() {
         pos_dist_sum += (a1_sorted[n] - a2_sorted[n]).abs();
     }
-
     println!("Sum of absolute differences: {}", pos_dist_sum);
 
+    // Section B
     let mut sim_score: i32 = 0;
-
     for n in 0..a1_sorted.len() {
         let mut left_occurences_right = 0;
         for m in 0..a2_sorted.len() {
@@ -64,6 +62,5 @@ fn main() {
         }
         sim_score += a1_sorted[n] * left_occurences_right;
     }
-
     println!("Similarity score: {}", sim_score);
 }

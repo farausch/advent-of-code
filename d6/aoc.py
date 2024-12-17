@@ -76,12 +76,13 @@ while not is_gridout_ahead(input_grid, pointer_pos_row, pointer_pos_col, current
     else:
         input_grid = move_pointer(input_grid, pointer_pos_row, pointer_pos_col, current_direction)
         pointer_pos_row, pointer_pos_col = get_pointer_pos(input_grid)
-
 print("Section A number of visited fields:", count_visited_pos(input_grid))
 
-# Section B (Logic is ok, but Python efficiency is not enough. See aoc.rs for Rust implementation)
+# Section B
+# Logic is ok, but Python efficiency is not enough. See aoc.rs for Rust implementation
 loop_causing_obstacles = 0
 VISITED_FIELD_STRING = "."
+
 for row_idx in range(len(input_grid)):
     for col_idx in range(len(input_grid[0])):
         input_grid = get_input_grid("input_test.txt")
