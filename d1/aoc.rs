@@ -49,7 +49,7 @@ fn main() {
     for n in 0..a1_sorted.len() {
         pos_dist_sum += (a1_sorted[n] - a2_sorted[n]).abs();
     }
-    println!("Sum of absolute differences: {}", pos_dist_sum);
+    println!("Section A sum of absolute differences: {}", pos_dist_sum);
 
     // Section B
     let mut sim_score: i32 = 0;
@@ -62,5 +62,5 @@ fn main() {
         }
         sim_score += a1_sorted[n] * left_occurences_right;
     }
-    println!("Similarity score: {}", sim_score);
+    println!("Section B similarity score: {}", sim_score);
 }
