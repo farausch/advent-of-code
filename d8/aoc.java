@@ -59,8 +59,8 @@ public class aoc {
                         int y1 = coordinates.get(c1).values().iterator().next();
                         int x2 = coordinates.get(c2).keySet().iterator().next();
                         int y2 = coordinates.get(c2).values().iterator().next();
-                        int x1Antinode = x1 + 1 * (x1 - x2);
-                        int y1Antinode = y1 + 1 * (y1 - y2);
+                        int x1Antinode = x1 + (x1 - x2);
+                        int y1Antinode = y1 + (y1 - y2);
                         int x2Antinode = x2 + (x2 - x1);
                         int y2Antinode = y2 + (y2 - y1);
                         antinodes.putIfAbsent(antenna, new ArrayList<>());
@@ -70,6 +70,47 @@ public class aoc {
                         Map<Integer, Integer> antinode2 = new HashMap<>();
                         antinode2.put(x2Antinode, y2Antinode);
                         antinodes.get(antenna).add(antinode2);
+                    }
+                }
+            }
+        }
+        return antinodes;
+    }
+
+    private static Map<Character, List<Map<Integer, Integer>>> getAntinodesExtended(Map<Character, List<Map<Integer, Integer>>> antennasWithCoordinates, int rows, int cols) {
+        Map<Character, List<Map<Integer, Integer>>> antinodes = new HashMap<>();
+        for (Map.Entry<Character, List<Map<Integer, Integer>>> entry : antennasWithCoordinates.entrySet()) {
+            Character antenna = entry.getKey();
+            List<Map<Integer, Integer>> coordinates = entry.getValue();
+            for (int c1 = 0; c1 < coordinates.size(); c1++) {
+                for (int c2 = c1 + 1; c2 < coordinates.size(); c2++) {
+                    if (c1 != c2) {
+                        int x1 = coordinates.get(c1).keySet().iterator().next();
+                        int y1 = coordinates.get(c1).values().iterator().next();
+                        int x2 = coordinates.get(c2).keySet().iterator().next();
+                        int y2 = coordinates.get(c2).values().iterator().next();
+                        boolean isCoordinate1OffGrid = false, isCoordinate2OffGrid = false;
+                        int multiplier = 0;
+                        while (!isCoordinate1OffGrid || !isCoordinate2OffGrid) {
+                            int x1Antinode = x1 + multiplier * (x1 - x2);
+                            int y1Antinode = y1 + multiplier * (y1 - y2);
+                            int x2Antinode = x2 + multiplier * (x2 - x1);
+                            int y2Antinode = y2 + multiplier * (y2 - y1);
+                            antinodes.putIfAbsent(antenna, new ArrayList<>());
+                            Map<Integer, Integer> antinode1 = new HashMap<>();
+                            antinode1.put(x1Antinode, y1Antinode);
+                            antinodes.get(antenna).add(antinode1);
+                            Map<Integer, Integer> antinode2 = new HashMap<>();
+                            antinode2.put(x2Antinode, y2Antinode);
+                            antinodes.get(antenna).add(antinode2);
+                            if (x1Antinode < 0 || x1Antinode >= rows || y1Antinode < 0 || y1Antinode >= cols) {
+                                isCoordinate1OffGrid = true;
+                            }
+                            if (x2Antinode < 0 || x2Antinode >= rows || y2Antinode < 0 || y2Antinode >= cols) {
+                                isCoordinate2OffGrid = true;
+                            }
+                            multiplier++;
+                        }
                     }
                 }
             }
@@ -107,7 +148,16 @@ public class aoc {
 
     public static void main(String[] args) {
         List<List<Character>> inputData = getInputData(INPUT_FILE_PATH);
-        System.out.println("Unique antinodes:");
-        System.out.println(countUniqueAntinodes(filterOffGridCoordinates(getAntinodes(getAntennasWithCoordinates(inputData)), inputData.size(), inputData.get(0).size())));
+        Map<Character, List<Map<Integer, Integer>>> antennasWithCoordinates = getAntennasWithCoordinates(inputData);
+
+        // Section A
+        Map<Character, List<Map<Integer, Integer>>> antinodes = getAntinodes(antennasWithCoordinates);
+        Map<Character, List<Map<Integer, Integer>>> filteredOffGridAntinodes = filterOffGridCoordinates(antinodes, inputData.size(), inputData.get(0).size());
+        System.out.println("Section A unique antinodes: " + countUniqueAntinodes(filteredOffGridAntinodes));
+
+        // Section B
+        Map<Character, List<Map<Integer, Integer>>> antinodesExtended = getAntinodesExtended(antennasWithCoordinates, inputData.size(), inputData.get(0).size());
+        Map<Character, List<Map<Integer, Integer>>> filteredOffGridAntinodesExtended = filterOffGridCoordinates(antinodesExtended, inputData.size(), inputData.get(0).size());
+        System.out.println("Section B unique antinodes: " + countUniqueAntinodes(filteredOffGridAntinodesExtended));
     }
 }
