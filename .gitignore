@@ -3,3 +3,5 @@ ownerproof.txt
 *.txt
 *.DS_Store
 *.class
+.idea/*
+*.iml
