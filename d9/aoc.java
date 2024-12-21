@@ -45,14 +45,29 @@ public class aoc {
         return -1;
     }
 
-    private static List<Integer> shiftLeftBlock(List<Integer> blocks, int from, int to) {
+    private static List<Integer> shiftLeftSingleBlock(List<Integer> blocks, int from, int to) {
         List<Integer> newBlocks = new ArrayList<>(blocks);
         newBlocks.set(to, newBlocks.get(from));
         newBlocks.set(from, -1);
         return newBlocks;
     }
 
-    private static boolean isBlockShiftLeftPossible(List<Integer> blocks) {
+    private static List<Integer> shiftLeftMultiBlock(List<Integer> blocks, int multiBlockLeftIdx, int multiBlockRightIdx) {
+        List<Integer> newBlocks = new ArrayList<>(blocks);
+        int fileId = newBlocks.get(multiBlockLeftIdx);
+        int multiBlockSize = multiBlockRightIdx - multiBlockLeftIdx + 1;
+        int suitableGapStart = getSuitableMultiBlockGapStart(newBlocks, multiBlockLeftIdx, multiBlockRightIdx);
+        if (suitableGapStart == -1) {
+            return newBlocks;
+        }
+        for (int i = 0; i < multiBlockSize; i++) {
+            newBlocks.set(suitableGapStart + i, fileId);
+            newBlocks.set(multiBlockLeftIdx + i, -1);
+        }
+        return newBlocks;
+    }
+
+    private static boolean isSingleBlockShiftLeftPossible(List<Integer> blocks) {
         int firstOpenSpot = getFirstOpenSpot(blocks);
         for (int i = firstOpenSpot; i < blocks.size(); i++) {
             if (blocks.get(i) != -1) {
@@ -62,19 +77,67 @@ public class aoc {
         return false;
     }
 
-    private static List<Integer> defragmentBlocks(List<Integer> blocks) {
+    private static int getSuitableMultiBlockGapStart(List<Integer> blocks, int multiBlockLeftIdx, int multiBlockRightIdx) {
+        int multiBlockSize = multiBlockRightIdx - multiBlockLeftIdx + 1;
+        for (int i = 0; i < multiBlockLeftIdx; i++) {
+            if (blocks.get(i) == -1) {
+                int gapSize = 0;
+                for (int j = i; j < blocks.size(); j++) {
+                    if (blocks.get(j) == -1) {
+                        gapSize++;
+                    } else {
+                        break;
+                    }
+                }
+                if (gapSize >= multiBlockSize) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private static int getMultiBlockLeftIdx(List<Integer> blocks, int multiBlockRightIdx) {
+        int fileId = blocks.get(multiBlockRightIdx);
+        int multiBlockLeftIdx = multiBlockRightIdx;
+        while (blocks.get(multiBlockLeftIdx) == fileId) {
+            if (multiBlockLeftIdx == 0) {
+                return 0;
+            }
+            multiBlockLeftIdx--;
+        }
+        return multiBlockLeftIdx + 1;
+    }
+
+    private static List<Integer> defragmentSingleBlocks(List<Integer> blocks) {
         List<Integer> defragmentedBlocks = new ArrayList<>(blocks);
         int currentIndex = blocks.size() - 1;
-        while (isBlockShiftLeftPossible(defragmentedBlocks)) {
-            defragmentedBlocks = shiftLeftBlock(defragmentedBlocks, currentIndex, getFirstOpenSpot(defragmentedBlocks));
+        while (isSingleBlockShiftLeftPossible(defragmentedBlocks)) {
+            defragmentedBlocks = shiftLeftSingleBlock(defragmentedBlocks, currentIndex, getFirstOpenSpot(defragmentedBlocks));
             currentIndex--;
         }
         return defragmentedBlocks;
     }
 
+    private static List<Integer> defragmentMultiBlocks(List<Integer> blocks) {
+        List<Integer> defragmentedBlocks = new ArrayList<>(blocks);
+        int currentPointer = defragmentedBlocks.size() - 1;
+        while (currentPointer >= 0) {
+            if (defragmentedBlocks.get(currentPointer) != -1) {
+                int multiBlockRightIdx = currentPointer;
+                int multiBlockLeftIdx = getMultiBlockLeftIdx(defragmentedBlocks, multiBlockRightIdx);
+                defragmentedBlocks = shiftLeftMultiBlock(defragmentedBlocks, multiBlockLeftIdx, multiBlockRightIdx);
+                currentPointer = multiBlockLeftIdx - 1;
+            } else {
+                currentPointer--;
+            }
+        }
+        return defragmentedBlocks;
+    }
+
     private static long calculateFileSystemChecksum(List<Integer> blocks) {
-        int lastCheckIndex = getFirstOpenSpot(blocks);
-        return IntStream.range(0, lastCheckIndex)
+        return IntStream.range(0, blocks.size() - 1)
+                .filter(i -> blocks.get(i) != -1)
                 .mapToLong(i -> blocks.get(i) * i)
                 .sum();
     }
@@ -94,8 +157,15 @@ public class aoc {
     public static void main(String[] args) {
         List<Integer> inputData = getInputData(INPUT_FILE_PATH);
         List<Integer> decompressedBlocks = getDecompressedBlocks(inputData);
-        List<Integer> defragmentedBlocks = defragmentBlocks(decompressedBlocks);
-        long checksum = calculateFileSystemChecksum(defragmentedBlocks);
-        System.out.println("Section A checksum: " + checksum);
+
+        // Section A
+        List<Integer> defragmentedBlocks = defragmentSingleBlocks(decompressedBlocks);
+        long checksumSingleBlocks = calculateFileSystemChecksum(defragmentedBlocks);
+        System.out.println("Section A checksum: " + checksumSingleBlocks);
+
+        // Section B
+        List<Integer> defragmentedMultiBlocks = defragmentMultiBlocks(decompressedBlocks);
+        long checksumMultiBlocks = calculateFileSystemChecksum(defragmentedMultiBlocks);
+        System.out.println("Section B checksum: " + checksumMultiBlocks);
     }
 }
