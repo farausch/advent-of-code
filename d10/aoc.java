@@ -72,7 +72,7 @@ public class aoc {
         return trailends;
     }
 
-    private static Map<Map<Integer, Integer>, Set<Map<Integer, Integer>>> getAllTrails(int[][] matrix) {
+    private static Map<Map<Integer, Integer>, Set<Map<Integer, Integer>>> getAllTrailends(int[][] matrix) {
         Map<Map<Integer, Integer>, Set<Map<Integer, Integer>>> trailends = new HashMap<>();
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
@@ -99,26 +99,26 @@ public class aoc {
         return sum;
     }
 
-    private static void depth_first_search(int[][] matrix, int i, int j, List<List<Map<Integer, Integer>>> allPaths, List<Map<Integer, Integer>> currentPath) {
-        if (matrix[i][j] == 9) {
-            currentPath.add(Map.of(i, j));
+    private static void depth_first_search(int[][] matrix, int startI, int startJ, List<List<Map<Integer, Integer>>> allPaths, List<Map<Integer, Integer>> currentPath) {
+        if (matrix[startI][startJ] == 9) {
+            currentPath.add(Map.of(startI, startJ));
             allPaths.add(new ArrayList<>(currentPath));
             return;
         }
-        currentPath.add(Map.of(i, j));
-        if (isTopStepValid(matrix, i, j)) {
-            depth_first_search(matrix, i - 1, j, allPaths, currentPath);
+        currentPath.add(Map.of(startI, startJ));
+        if (isTopStepValid(matrix, startI, startJ)) {
+            depth_first_search(matrix, startI - 1, startJ, allPaths, currentPath);
         }
-        if (isDownStepValid(matrix, i, j)) {
-            depth_first_search(matrix, i + 1, j, allPaths, currentPath);
+        if (isDownStepValid(matrix, startI, startJ)) {
+            depth_first_search(matrix, startI + 1, startJ, allPaths, currentPath);
         }
-        if (isLeftStepValid(matrix, i, j)) {
-            depth_first_search(matrix, i, j - 1, allPaths, currentPath);
+        if (isLeftStepValid(matrix, startI, startJ)) {
+            depth_first_search(matrix, startI, startJ - 1, allPaths, currentPath);
         }
-        if (isRightStepValid(matrix, i, j)) {
-            depth_first_search(matrix, i, j + 1, allPaths, currentPath);
+        if (isRightStepValid(matrix, startI, startJ)) {
+            depth_first_search(matrix, startI, startJ + 1, allPaths, currentPath);
         }
-        //currentPath.remove(currentPath.size() - 1);
+        currentPath.remove(currentPath.size() - 1); // Not required for amount of paths like in this problem, but for the correctness of the stored paths
     }
 
     private static List<List<Map<Integer, Integer>>> getPaths(int[][] matrix, int i, int j) {
@@ -160,7 +160,7 @@ public class aoc {
         int[][] matrix = convertMatrix(inputMatrix);
 
         // Section A
-        Map<Map<Integer, Integer>, Set<Map<Integer, Integer>>> trails = getAllTrails(matrix);
+        Map<Map<Integer, Integer>, Set<Map<Integer, Integer>>> trails = getAllTrailends(matrix);
         int trailheadSum = calculateTrailheadSum(trails);
         System.out.println("Section A trailhead sum: " + trailheadSum);
 
