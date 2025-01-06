@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-const INPUT_STONES: &str = "1 23 456";
+const INPUT_STONES: &str = "5910927 0 1 47 261223 94788 545 7771";
 
 fn get_stones(stones: &str) -> Vec<u64> {
     stones
@@ -13,17 +13,18 @@ fn blink_at_stone(stone: u64) -> Vec<u64> {
     let mut new_stones = Vec::new();
     if stone == 0 {
         new_stones.push(1);
-    } else if stone.to_string().len() % 2 == 0 {
-        let stone_str = stone.to_string();
-        let mid = stone_str.len() / 2;
-        let first_half = &stone_str[..mid];
-        let second_half = &stone_str[mid..];
-        if let (Ok(first), Ok(second)) = (first_half.parse::<u64>(), second_half.parse::<u64>()) {
-            new_stones.push(first);
-            new_stones.push(second);
-        }
     } else {
-        new_stones.push(stone * 2024);
+        let num_digits = (stone as f64).log10().floor() as usize + 1;
+        if num_digits % 2 == 0 {
+            let mid = num_digits / 2;
+            let divisor = 10_u64.pow(mid as u32);
+            let first_half = stone / divisor;
+            let second_half = stone % divisor;
+            new_stones.push(first_half);
+            new_stones.push(second_half);
+        } else {
+            new_stones.push(stone * 2024);
+        }
     }
     new_stones
 }
