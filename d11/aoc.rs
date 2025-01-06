@@ -36,7 +36,6 @@ fn compute_stones_count(
     if let Some(&count) = memory.get(&(stone, iterations)) {
         return count;
     }
-
     let count = if iterations == 0 {
         1
     } else {
@@ -45,7 +44,6 @@ fn compute_stones_count(
             .map(|&new_stone| compute_stones_count(new_stone, iterations - 1, memory))
             .sum()
     };
-
     memory.insert((stone, iterations), count);
     count
 }
