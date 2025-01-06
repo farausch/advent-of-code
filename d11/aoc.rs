@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-const INPUT_STONES: &str = "5910927 0 1 47 261223 94788 545 7771";
+const INPUT_STONES: &str = "1 23 456";
 
 fn get_stones(stones: &str) -> Vec<u64> {
     stones
